@@ -1,4 +1,4 @@
 # TTEOTW
-To the end of the world.
+To the end of the world. A mining game.
 
-Revisiting the mining game 'Diggity'.
+Revisiting the game 'Diggity' I created in 2019.
