@@ -69,6 +69,8 @@ namespace ModelLibrary.Abstract
             return XVelocity + XOffset > XBoundary * -1.0f;
         }
 
+        // TODO: Instead of 0.0f, decrease by value.
+        // TODO: Incorporate gravity.
         public void UpdateVelocity(Vector2 direction)
         {
             if (direction.X == 0)

@@ -107,8 +107,9 @@ namespace ToTheEndOfTheWorld
         {
             KeyboardState state = Keyboard.GetState();
 
-            var location = world.WorldRender[new Vector2(world.Player.Coordinates.X, world.Player.Coordinates.Y)];
-
+            var player = world.Player;
+            var location = world.WorldRender[new Vector2(player.Coordinates.X, player.Coordinates.Y)];
+            
             Vector2 direction = new(0, 0);
             if (state.IsKeyDown(Keys.Up))
             {
@@ -126,24 +127,24 @@ namespace ToTheEndOfTheWorld
             {
                 direction = new Vector2(1, direction.Y);
             }
-            world.Player.Direction = direction;
+            player.Direction = direction;
 
             Vector2 nextBlockVector = new(location.X + direction.X, location.Y + direction.Y);
             Block nextBlock = GetWorldBlock(nextBlockVector.X, nextBlockVector.Y).Value.Block;
 
-            world.Player.UpdateVelocity(direction);
-            world.Player.UpdateOffset();
+            player.UpdateVelocity(direction);
+            player.UpdateOffset();
 
             #region Rewrite this.
             float halfSize = _pixels / 2.0f;
             if(!Obstructed(nextBlock, nextBlockVector))
             {
                 // Right
-                if (world.Player.XOffset > halfSize)
+                if (player.XOffset > halfSize)
                 {
-                    float xmoves = (float)Math.Floor(world.Player.XOffset / halfSize);
-                    var offset = -1 * world.Player.XOffset % halfSize + halfSize;
-                    world.Player.XOffset = -1 * offset + world.Player.XVelocity;
+                    float xmoves = (float)Math.Floor(player.XOffset / halfSize);
+                    var offset = -1 * player.XOffset % halfSize + halfSize;
+                    player.XOffset = -1 * offset + player.XVelocity;
 
                     var counter = 0;
                     while (++counter < xmoves)
@@ -160,12 +161,12 @@ namespace ToTheEndOfTheWorld
 
                 }
                 // Left
-                else if (world.Player.XOffset < -1 * halfSize)
+                else if (player.XOffset < -1 * halfSize)
                 {
-                    var absolute = Math.Abs((float)world.Player.XOffset);
+                    var absolute = Math.Abs((float)player.XOffset);
                     float xmoves = (float)Math.Floor(absolute / halfSize);
-                    var offset = 1 * world.Player.XOffset % halfSize;
-                    world.Player.XOffset = +1 * offset + halfSize + world.Player.XVelocity;
+                    var offset = 1 * player.XOffset % halfSize;
+                    player.XOffset = +1 * offset + halfSize + player.XVelocity;
 
                     var counter = 0;
                     while (++counter < xmoves)
@@ -181,11 +182,11 @@ namespace ToTheEndOfTheWorld
                     MoveScreen(direction.X * counter, direction.Y);
                 }
                 // Down 
-                else if (world.Player.YOffset > halfSize)
+                else if (player.YOffset > halfSize)
                 {
-                    float ymoves = (float)Math.Floor(world.Player.YOffset / halfSize);
-                    var offset = -1 * world.Player.YOffset % halfSize + halfSize;
-                    world.Player.YOffset = -1 * offset + world.Player.YVelocity;
+                    float ymoves = (float)Math.Floor(player.YOffset / halfSize);
+                    var offset = -1 * player.YOffset % halfSize + halfSize;
+                    player.YOffset = -1 * offset + player.YVelocity;
 
                     var counter = 0;
                     while (++counter < ymoves)
@@ -201,12 +202,12 @@ namespace ToTheEndOfTheWorld
                     MoveScreen(direction.X, direction.Y * counter);
                 }
                 // Up 
-                else if (world.Player.YOffset < -1 * halfSize)
+                else if (player.YOffset < -1 * halfSize)
                 {
-                    var absolute = Math.Abs((float)world.Player.YOffset);
+                    var absolute = Math.Abs((float)player.YOffset);
                     float ymoves = (float)Math.Floor(absolute / halfSize);
-                    var offset = 1 * world.Player.YOffset % halfSize;
-                    world.Player.YOffset = +1 * offset + halfSize + world.Player.YVelocity;
+                    var offset = 1 * player.YOffset % halfSize;
+                    player.YOffset = +1 * offset + halfSize + player.YVelocity;
 
                     var counter = 0;
                     while (++counter < ymoves)
@@ -225,15 +226,15 @@ namespace ToTheEndOfTheWorld
             }
             #endregion
 
-            world.Player.Mining = false;
+            player.Mining = false;
             if (Obstructed(nextBlock, nextBlockVector))
             {
-                world.Player.Mining = true;
-                world.Player.ResetOffset();
-                world.Player.ResetVelocity();
+                player.Mining = true;
+                player.ResetOffset();
+                player.ResetVelocity();
                 DealDamageToBlock(nextBlockVector.X, nextBlockVector.Y);
                 
-                if(!Obstructed(nextBlock, nextBlockVector) && world.Player.MaximumActiveVelocity >= halfSize)
+                if(!Obstructed(nextBlock, nextBlockVector) && player.MaximumActiveVelocity >= halfSize)
                 {
                     MoveScreen(direction.X, direction.Y);
                 }
