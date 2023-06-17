@@ -13,6 +13,7 @@ using System.Linq;
 using UtilityLibrary;
 using ModelLibrary.Context;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace ToTheEndOfTheWorld
 {
@@ -105,70 +106,74 @@ namespace ToTheEndOfTheWorld
 
         protected override async void Update(GameTime gameTime)
         {
-            KeyboardState state = Keyboard.GetState();
-            if (state.IsKeyDown(Keys.LeftControl) && state.IsKeyDown(Keys.S))
+            var runner = Task.Run(() =>
             {
-                ContextHandler.SaveWorld(world);
-            }
-
-            var player = world.Player;
-            var oldDirection = player.Direction;
-            var newDirection = player.SetDirectionFromInput(state);
-            var location = world.WorldRender[new Vector2(player.Coordinates.X, player.Coordinates.Y)];
-            var nextBlockVector = new Vector2(location.X + newDirection.X, location.Y + newDirection.Y);
-            var nextBlock = GetWorldBlock(nextBlockVector.X, nextBlockVector.Y).Value.Block;
-
-            if (oldDirection != newDirection || (newDirection.X == 0 && newDirection.Y == 0))
-            {
-                player.ResetOffset();
-                player.Mining = false;
-            }
-
-
-            if (!Obstructed(nextBlock, nextBlockVector))
-            {
-                player.UpdateVelocity();
-                player.UpdateOffset();
-
-                var blocksToMove = player.BlocksToMove(_pixels);
-
-                if (blocksToMove > 0)
+                KeyboardState state = Keyboard.GetState();
+                if (state.IsKeyDown(Keys.LeftControl) && state.IsKeyDown(Keys.S))
                 {
-                    Block checkBlock;
-                    Vector2 checkBlockVector;
-                    float checkLocationX;
-                    float checkLocationY;
-
-                    var i = 1;
-                    while (i < blocksToMove)
-                    {
-                        checkLocationX = location.X + (newDirection.X * i);
-                        checkLocationY = location.Y + (newDirection.Y * i);
-
-                        checkBlockVector = new Vector2(checkLocationX, checkLocationY);
-                        checkBlock = GetWorldBlock(checkBlockVector.X, checkBlockVector.Y).Value.Block;
-
-                        if (Obstructed(checkBlock, checkBlockVector)) break;
-
-                        i++;
-                    }
-                    player.SubstractOffset(_pixels * i);
-                    MoveScreen(newDirection.X * i, newDirection.Y * i);
+                    ContextHandler.SaveWorld(world);
                 }
-            }
 
-            if (Obstructed(nextBlock, nextBlockVector))
-            {
-                player.Mining = true;
-                player.ResetVelocity();
-                player.ResetOffset();
-                DealDamageToBlock(nextBlockVector.X, nextBlockVector.Y);
+                var player = world.Player;
+                var oldDirection = player.Direction;
+                var newDirection = player.SetDirectionFromInput(state);
+                var location = world.WorldRender[new Vector2(player.Coordinates.X, player.Coordinates.Y)];
+                var nextBlockVector = new Vector2(location.X + newDirection.X, location.Y + newDirection.Y);
+                var nextBlock = GetWorldBlock(nextBlockVector.X, nextBlockVector.Y).Value.Block;
+
+                if (oldDirection != newDirection || (newDirection.X == 0 && newDirection.Y == 0))
+                {
+                    player.ResetOffset();
+                    player.Mining = false;
+                }
 
                 if (!Obstructed(nextBlock, nextBlockVector))
                 {
-                    MoveScreen(newDirection.X, newDirection.Y);
+                    player.UpdateVelocity();
+                    player.UpdateOffset();
+
+                    var blocksToMove = player.BlocksToMove(_pixels);
+
+                    if (blocksToMove > 0)
+                    {
+                        Block checkBlock;
+                        Vector2 checkBlockVector;
+                        float checkLocationX;
+                        float checkLocationY;
+
+                        var i = 1;
+                        while (i < blocksToMove)
+                        {
+                            checkLocationX = location.X + (newDirection.X * i);
+                            checkLocationY = location.Y + (newDirection.Y * i);
+
+                            checkBlockVector = new Vector2(checkLocationX, checkLocationY);
+                            checkBlock = GetWorldBlock(checkBlockVector.X, checkBlockVector.Y).Value.Block;
+
+                            if (Obstructed(checkBlock, checkBlockVector)) break;
+
+                            i++;
+                        }
+                        player.SubstractOffset(_pixels * i);
+                        MoveScreen(newDirection.X * i, newDirection.Y * i);
+                    }
                 }
-            }
+
+                if (Obstructed(nextBlock, nextBlockVector))
+                {
+                    player.Mining = true;
+                    player.ResetVelocity();
+                    player.ResetOffset();
+                    DealDamageToBlock(nextBlockVector.X, nextBlockVector.Y);
+
+                    if (!Obstructed(nextBlock, nextBlockVector))
+                    {
+                        MoveScreen(newDirection.X, newDirection.Y);
+                    }
+                }
+            });
+
+            await runner;
 
             base.Update(gameTime);
         }
@@ -302,7 +307,7 @@ namespace ToTheEndOfTheWorld
         {
             var simplex = (float)SimplexNoise.Singleton.Noise01(x, y) * 100.0f;
 
-            foreach (var block in blocks.OrderByDescending(x => x.Key))
+            foreach (var block in blocks.OrderByDescending(e => e.Key))
             {
                 var info = block.Value.block.Info;
 
