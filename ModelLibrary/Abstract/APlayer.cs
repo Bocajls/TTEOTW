@@ -38,36 +38,6 @@ namespace ModelLibrary.Abstract
         public float Weight { get; } = 0.0f;
 
         public float MaximumActiveVelocity => Math.Abs(XVelocity) > Math.Abs(YVelocity) ? Math.Abs(XVelocity) : Math.Abs(YVelocity);
-        public void SetOffset(float XO, float YO)
-        {
-            XOffset = XO;
-            YOffset = YO;
-        }
-        public void UpdateOffset()
-        {
-            XOffset += XVelocity;
-            YOffset += YVelocity;
-        }
-
-        public bool WithinBlockPositiveXBoundariesAfterMoving(float XBoundary)
-        {
-            return XVelocity + XOffset < XBoundary * 1.0f;
-        }
-
-        public bool WithinBlockNegativeYBoundariesAfterMoving(float YBboundary)
-        {
-            return YVelocity + YOffset > YBboundary * -1.0f;
-        }
-
-        public bool WithinBlockPositiveYBoundariesAfterMoving(float YBboundary)
-        {
-            return YVelocity + YOffset < YBboundary * 1.0f;
-        }
-
-        public bool WithinBlockNegativeXBoundariesAfterMoving(float XBoundary)
-        {
-            return XVelocity + XOffset > XBoundary * -1.0f;
-        }
 
         // TODO: Instead of 0.0f, decrease by value.
         // TODO: Incorporate gravity.
@@ -151,12 +121,6 @@ namespace ModelLibrary.Abstract
                 return;
             }
 
-        }
-
-        public void ResetOffset()
-        {
-            XOffset = 0.0f;
-            YOffset = 0.0f;
         }
 
         public void ResetVelocity()

@@ -13,6 +13,8 @@ using System.Linq;
 using UtilityLibrary;
 using ModelLibrary.Context;
 using ModelLibrary.Abstract;
+using System.Diagnostics.Metrics;
+using System.Reflection;
 
 namespace ToTheEndOfTheWorld
 {
@@ -109,7 +111,7 @@ namespace ToTheEndOfTheWorld
 
             var player = world.Player;
             var location = world.WorldRender[new Vector2(player.Coordinates.X, player.Coordinates.Y)];
-            
+
             Vector2 direction = new(0, 0);
             if (state.IsKeyDown(Keys.Up))
             {
@@ -133,6 +135,13 @@ namespace ToTheEndOfTheWorld
             Block nextBlock = GetWorldBlock(nextBlockVector.X, nextBlockVector.Y).Value.Block;
 
             player.UpdateVelocity(direction);
+
+            if (!Obstructed(nextBlock, nextBlockVector))
+            {
+                MoveScreen(direction.X, direction.Y);
+            };
+
+            /*
             player.UpdateOffset();
 
             #region Rewrite this.
@@ -225,16 +234,17 @@ namespace ToTheEndOfTheWorld
                 }
             }
             #endregion
+            */
 
             player.Mining = false;
             if (Obstructed(nextBlock, nextBlockVector))
             {
                 player.Mining = true;
-                player.ResetOffset();
+                //player.ResetOffset();
                 player.ResetVelocity();
                 DealDamageToBlock(nextBlockVector.X, nextBlockVector.Y);
-                
-                if(!Obstructed(nextBlock, nextBlockVector) && player.MaximumActiveVelocity >= halfSize)
+
+                if (!Obstructed(nextBlock, nextBlockVector))// && player.MaximumActiveVelocity >= halfSize)
                 {
                     MoveScreen(direction.X, direction.Y);
                 }
@@ -321,7 +331,7 @@ namespace ToTheEndOfTheWorld
                 }
                 else
                 {
-                    
+
                     spriteBatch.Draw(hull.Textures[PlayerOrientation.Base], PlayerPosition, Color.White);
                 }
                 if (player.MaximumActiveVelocity > 0)
