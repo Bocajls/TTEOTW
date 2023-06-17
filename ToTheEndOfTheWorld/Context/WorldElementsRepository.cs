@@ -15,6 +15,10 @@ namespace ToTheEndOfTheWorld.Context.StaticRepositories
 
         private void InitializeCollection(ContentManager manager)
         {
+            var BreakingBlockInfo = new BlockInfo();
+            var BreakingBlock = new Block(ID: -1, Ethereal: true, Info: BreakingBlockInfo);
+            Add(-2, ("Breaking", manager.Load<Texture2D>("Graphics/World/Blocks/Breaking"), BreakingBlock));
+
             var BackgroundBlockInfo = new BlockInfo();
             var BackgroundBlock = new Block(ID: -1, Ethereal: true, Info: BackgroundBlockInfo);
             Add(-1, ("Background", manager.Load<Texture2D>("Graphics/World/Blocks/Background"), BackgroundBlock));

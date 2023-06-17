@@ -111,12 +111,9 @@ namespace ToTheEndOfTheWorld
             }
 
             var player = world.Player;
-
             var oldDirection = player.Direction;
             var newDirection = player.SetDirectionFromInput(state);
-
             var location = world.WorldRender[new Vector2(player.Coordinates.X, player.Coordinates.Y)];
-            
             var nextBlockVector = new Vector2(location.X + newDirection.X, location.Y + newDirection.Y);
             var nextBlock = GetWorldBlock(nextBlockVector.X, nextBlockVector.Y).Value.Block;
 
@@ -126,17 +123,34 @@ namespace ToTheEndOfTheWorld
                 player.Mining = false;
             }
 
+            
             if (!Obstructed(nextBlock, nextBlockVector))
             {
-                //player.Mining = false;
                 player.UpdateVelocity();
                 player.UpdateOffset();
 
-                if ((Math.Abs(player.XOffset) >= _pixels) || (Math.Abs(player.YOffset) >= _pixels))
-                {
-                    player.SubstractOffset(_pixels);
+                var moves = player.BlocksToMove(_pixels);
 
-                    MoveScreen(newDirection.X, newDirection.Y);
+                if (moves > 0)
+                {
+                    for (var i = 1; i < moves; i++)
+                    {
+                        var checkLocationX = location.X + (newDirection.X * i);
+                        var checkLocationY = location.Y + (newDirection.Y * i);
+
+                        var checkBlockVector = new Vector2(checkLocationX, checkLocationY);
+                        var checkBlock = GetWorldBlock(checkBlockVector.X, checkBlockVector.Y).Value.Block;
+
+                        if (!Obstructed(checkBlock, checkBlockVector))
+                        {
+                            player.SubstractOffset(_pixels);
+                            MoveScreen(newDirection.X, newDirection.Y);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
                 }
             }
             
@@ -146,6 +160,11 @@ namespace ToTheEndOfTheWorld
                 player.ResetVelocity();
                 player.ResetOffset();
                 DealDamageToBlock(nextBlockVector.X, nextBlockVector.Y);
+        
+                if (!Obstructed(nextBlock, nextBlockVector))
+                {
+                    MoveScreen(newDirection.X, newDirection.Y);
+                }
             }
 
             base.Update(gameTime);
@@ -187,11 +206,20 @@ namespace ToTheEndOfTheWorld
 
                 if (world.WorldTrails.ContainsKey(pair.Value))
                 {
-                    spriteBatch.Draw(blocks.Where(x => x.Key == -1).FirstOrDefault().Value.Texture, location, Color.White);
+                    spriteBatch.Draw(blocks.First(x => x.Key == -1).Value.Texture, location, Color.White);
                 }
                 else
                 {
-                    spriteBatch.Draw(GetWorldBlock(pair.Value.X, pair.Value.Y).Value.Texture, location, Color.White);
+                    var block = GetWorldBlock(pair.Value.X, pair.Value.Y);
+                    
+                    spriteBatch.Draw(block.Value.Texture, location, Color.White);
+
+                    if (interactions.ContainsKey(pair.Value))
+                    {
+                        var percentDamaged = interactions[pair.Value].PercentDamaged();
+
+                        spriteBatch.Draw(blocks.First(x => x.Key == -2).Value.Texture, location, Color.White * percentDamaged);
+                    }
                 }
             }
         }
@@ -247,7 +275,7 @@ namespace ToTheEndOfTheWorld
         private void DealDamageToBlock(float x, float y)
         {
             var vector = new Vector2(x, y);
-            var block = GetWorldBlock(x, y).Value.Block as Block;
+            var block = GetWorldBlock(x, y).Value.Block;
 
             if (interactions.ContainsKey(vector) == false)
             {
@@ -264,6 +292,7 @@ namespace ToTheEndOfTheWorld
         private void OnBlockDestroyed(Block block, EventArgs e, Vector2 location)
         {
             world.WorldTrails.Add(location, true);
+            interactions.Remove(location);
         }
 
         private KeyValuePair<int, (string Name, Texture2D Texture, Block Block)> GetWorldBlock(float x, float y)
@@ -282,13 +311,13 @@ namespace ToTheEndOfTheWorld
                 if (simplex >= info.OccurrenceSpan.X && simplex <= info.OccurrenceSpan.Y)
                 {
                     var keyValuePair = new KeyValuePair<int, (string Name, Texture2D Texture, Block Block)>
-                        (
-                            block.Key, (block.Value.Name, block.Value.Texture, new Block(block.Value.block))
-                        );
+                    (
+                        block.Key, (block.Value.Name, block.Value.Texture, new Block(block.Value.block))
+                    );
 
                     if (block.Key == 2 && x > 0) // Dirt gets compressed slowly
                     {
-                        keyValuePair.Value.Block.Hardness += 0.01f * x;
+                        //keyValuePair.Value.Block.Hardness += 0.01f * x; // TODO: Implement this.
                         keyValuePair.Value.Block.CurrentHealth += 0.01f * x;
                         keyValuePair.Value.Block.MaximumHealth += 0.01f * x;
                     }

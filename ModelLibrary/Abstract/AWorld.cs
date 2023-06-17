@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using System.Collections.Generic;
 using ModelLibrary.Abstract.Buildings;
 
 namespace ModelLibrary.Abstract

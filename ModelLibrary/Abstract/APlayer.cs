@@ -30,7 +30,7 @@ namespace ModelLibrary.Abstract
         public Vector2 SetDirectionFromInput(KeyboardState state)
         {
             Vector2 direction = new(0, 0);
-            
+
             if (state.IsKeyDown(Keys.Up))
             {
                 direction = new Vector2(direction.X, -1);
@@ -71,15 +71,31 @@ namespace ModelLibrary.Abstract
             YOffset += YVelocity;
         }
 
+        public int BlocksToMove(float pixels)
+        {
+            switch (Orientation)
+            {
+                case PlayerOrientation.Left:
+                    return (int)Math.Floor(Math.Abs(XOffset / pixels));
+                case PlayerOrientation.Up:
+                    return (int)Math.Floor(Math.Abs(YOffset / pixels));
+                case PlayerOrientation.Right:
+                    return (int)Math.Floor(XOffset / pixels);
+                case PlayerOrientation.Down:
+                    return (int)Math.Floor(YOffset / pixels);
+            }
+            return 0;
+        }
+
         public void SubstractOffset(int pixels)
         {
             switch (Orientation)
             {
                 case PlayerOrientation.Left:
-                    XOffset += pixels; 
+                    XOffset += pixels;
                     break;
                 case PlayerOrientation.Up:
-                    YOffset += pixels; 
+                    YOffset += pixels;
                     break;
                 case PlayerOrientation.Right:
                     XOffset -= pixels;

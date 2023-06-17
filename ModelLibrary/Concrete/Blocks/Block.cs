@@ -43,7 +43,7 @@ namespace ModelLibrary.Concrete.Blocks
                 return;
             }
 
-            CurrentHealth -= damage;//CalculatePenetrationDamage(damage);
+            CurrentHealth -= CalculatePenetrationDamage(damage);
 
             if (CurrentHealth <= 0)
             {
@@ -53,12 +53,15 @@ namespace ModelLibrary.Concrete.Blocks
             }
         }
 
-        /*
+        public float PercentDamaged()
+        {
+            return 1.0f - CurrentHealth / MaximumHealth;
+        }
+
         public float CalculatePenetrationDamage(float drillDamage)
         {
             return (drillDamage - Hardness) <= 0 ? 0 : (drillDamage - Hardness);
         }
-        */
 
         // Etheral blocks do not block player ship from moving on over them.
         public bool BlockIsEthereal() => Ethereal;
