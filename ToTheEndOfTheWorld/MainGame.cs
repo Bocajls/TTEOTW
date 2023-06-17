@@ -12,9 +12,6 @@ using ModelLibrary.Enums;
 using System.Linq;
 using UtilityLibrary;
 using ModelLibrary.Context;
-using ModelLibrary.Abstract;
-using System.Diagnostics.Metrics;
-using System.Reflection;
 
 namespace ToTheEndOfTheWorld
 {
@@ -108,151 +105,47 @@ namespace ToTheEndOfTheWorld
         protected override void Update(GameTime gameTime)
         {
             KeyboardState state = Keyboard.GetState();
-
-            var player = world.Player;
-            var location = world.WorldRender[new Vector2(player.Coordinates.X, player.Coordinates.Y)];
-
-            Vector2 direction = new(0, 0);
-            if (state.IsKeyDown(Keys.Up))
-            {
-                direction = new Vector2(direction.X, -1);
-            }
-            else if (state.IsKeyDown(Keys.Down))
-            {
-                direction = new Vector2(direction.X, 1);
-            }
-            else if (state.IsKeyDown(Keys.Left))
-            {
-                direction = new Vector2(-1, direction.Y);
-            }
-            else if (state.IsKeyDown(Keys.Right))
-            {
-                direction = new Vector2(1, direction.Y);
-            }
-            player.Direction = direction;
-
-            Vector2 nextBlockVector = new(location.X + direction.X, location.Y + direction.Y);
-            Block nextBlock = GetWorldBlock(nextBlockVector.X, nextBlockVector.Y).Value.Block;
-
-            player.UpdateVelocity(direction);
-
-            if (!Obstructed(nextBlock, nextBlockVector))
-            {
-                MoveScreen(direction.X, direction.Y);
-            };
-
-            /*
-            player.UpdateOffset();
-
-            #region Rewrite this.
-            float halfSize = _pixels / 2.0f;
-            if(!Obstructed(nextBlock, nextBlockVector))
-            {
-                // Right
-                if (player.XOffset > halfSize)
-                {
-                    float xmoves = (float)Math.Floor(player.XOffset / halfSize);
-                    var offset = -1 * player.XOffset % halfSize + halfSize;
-                    player.XOffset = -1 * offset + player.XVelocity;
-
-                    var counter = 0;
-                    while (++counter < xmoves)
-                    {
-                        nextBlock = GetWorldBlock(location.X + counter, location.Y).Value.Block;
-                        nextBlockVector = new Vector2(location.X + counter, location.Y);
-                        if (Obstructed(nextBlock, nextBlockVector))
-                        {
-                            break;
-                        }
-                    }
-
-                    MoveScreen(direction.X * counter, direction.Y);
-
-                }
-                // Left
-                else if (player.XOffset < -1 * halfSize)
-                {
-                    var absolute = Math.Abs((float)player.XOffset);
-                    float xmoves = (float)Math.Floor(absolute / halfSize);
-                    var offset = 1 * player.XOffset % halfSize;
-                    player.XOffset = +1 * offset + halfSize + player.XVelocity;
-
-                    var counter = 0;
-                    while (++counter < xmoves)
-                    {
-                        nextBlock = GetWorldBlock(location.X - counter, location.Y).Value.Block;
-                        nextBlockVector = new Vector2(location.X - counter, location.Y);
-                        if (Obstructed(nextBlock, nextBlockVector))
-                        {
-                            break;
-                        }
-                    }
-
-                    MoveScreen(direction.X * counter, direction.Y);
-                }
-                // Down 
-                else if (player.YOffset > halfSize)
-                {
-                    float ymoves = (float)Math.Floor(player.YOffset / halfSize);
-                    var offset = -1 * player.YOffset % halfSize + halfSize;
-                    player.YOffset = -1 * offset + player.YVelocity;
-
-                    var counter = 0;
-                    while (++counter < ymoves)
-                    {
-                        nextBlock = GetWorldBlock(location.X, location.Y + counter).Value.Block;
-                        nextBlockVector = new Vector2(location.X, location.Y + counter);
-                        if (Obstructed(nextBlock, nextBlockVector))
-                        {
-                            break;
-                        }
-                    }
-
-                    MoveScreen(direction.X, direction.Y * counter);
-                }
-                // Up 
-                else if (player.YOffset < -1 * halfSize)
-                {
-                    var absolute = Math.Abs((float)player.YOffset);
-                    float ymoves = (float)Math.Floor(absolute / halfSize);
-                    var offset = 1 * player.YOffset % halfSize;
-                    player.YOffset = +1 * offset + halfSize + player.YVelocity;
-
-                    var counter = 0;
-                    while (++counter < ymoves)
-                    {
-                        nextBlock = GetWorldBlock(location.X, location.Y - counter).Value.Block;
-                        nextBlockVector = new Vector2(location.X, location.Y - counter);
-                        if (Obstructed(nextBlock, nextBlockVector))
-                        {
-                            break;
-                        }
-
-                    }
-
-                    MoveScreen(direction.X, direction.Y * counter);
-                }
-            }
-            #endregion
-            */
-
-            player.Mining = false;
-            if (Obstructed(nextBlock, nextBlockVector))
-            {
-                player.Mining = true;
-                //player.ResetOffset();
-                player.ResetVelocity();
-                DealDamageToBlock(nextBlockVector.X, nextBlockVector.Y);
-
-                if (!Obstructed(nextBlock, nextBlockVector))// && player.MaximumActiveVelocity >= halfSize)
-                {
-                    MoveScreen(direction.X, direction.Y);
-                }
-            }
-
             if (state.IsKeyDown(Keys.LeftControl) && state.IsKeyDown(Keys.S))
             {
                 ContextHandler.SaveWorld(world);
+            }
+
+            var player = world.Player;
+
+            var oldDirection = player.Direction;
+            var newDirection = player.SetDirectionFromInput(state);
+
+            var location = world.WorldRender[new Vector2(player.Coordinates.X, player.Coordinates.Y)];
+            
+            var nextBlockVector = new Vector2(location.X + newDirection.X, location.Y + newDirection.Y);
+            var nextBlock = GetWorldBlock(nextBlockVector.X, nextBlockVector.Y).Value.Block;
+
+            if (oldDirection != newDirection || (newDirection.X == 0 && newDirection.Y == 0))
+            {
+                player.ResetOffset();
+                player.Mining = false;
+            }
+
+            if (!Obstructed(nextBlock, nextBlockVector))
+            {
+                //player.Mining = false;
+                player.UpdateVelocity();
+                player.UpdateOffset();
+
+                if ((Math.Abs(player.XOffset) >= _pixels) || (Math.Abs(player.YOffset) >= _pixels))
+                {
+                    player.SubstractOffset(_pixels);
+
+                    MoveScreen(newDirection.X, newDirection.Y);
+                }
+            }
+            
+            if (Obstructed(nextBlock, nextBlockVector))
+            {
+                player.Mining = true;
+                player.ResetVelocity();
+                player.ResetOffset();
+                DealDamageToBlock(nextBlockVector.X, nextBlockVector.Y);
             }
 
             base.Update(gameTime);
@@ -278,17 +171,19 @@ namespace ToTheEndOfTheWorld
         {
             var font = Content.Load<SpriteFont>("Fonts/text");
             var first = world.WorldRender.OrderBy(x => x.Key.X).OrderBy(x => x.Key.Y).FirstOrDefault();
-            spriteBatch.DrawString(font, $"Offset: X: {first.Value.X}, Y: {first.Value.Y}", new Vector2(5, 5), Color.Black);
+            var player = world.Player;
+            spriteBatch.DrawString(font, $"World position: X: {first.Value.X}, Y: {first.Value.Y}", new Vector2(5, 5), Color.Black);
+            spriteBatch.DrawString(font, $"Player velocity: X: {player.XVelocity}, Y: {player.YVelocity}", new Vector2(5, 25), Color.Black);
+            spriteBatch.DrawString(font, $"Player offset: X: {player.XOffset}, Y: {player.YOffset}", new Vector2(5, 45), Color.Black);
         }
 
         private void DrawRenderedWorld()
         {
             foreach (var pair in world.WorldRender)
             {
-                var XOffset = world.Player.XOffset;
-                var YOffset = world.Player.YOffset;
-
-                var location = new Vector2((pair.Key.X * _pixels) - (XOffset), (pair.Key.Y * _pixels) - (YOffset));
+                var player = world.Player;
+                //var location = new Vector2((pair.Key.X * _pixels) - (player.XOffset), (pair.Key.Y * _pixels) - (player.YOffset));
+                var location = new Vector2(pair.Key.X * _pixels, pair.Key.Y * _pixels);
 
                 if (world.WorldTrails.ContainsKey(pair.Value))
                 {

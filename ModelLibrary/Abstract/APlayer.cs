@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
+using Microsoft.Xna.Framework.Input;
 using ModelLibrary.Abstract.PlayerShipComponents;
 using ModelLibrary.Enums;
 
@@ -9,10 +9,11 @@ namespace ModelLibrary.Abstract
     {
         public Vector2 Coordinates { get; set; } = new Vector2(0, 0);
         public Vector2 Direction { get; set; } = new Vector2(0, 0);
-        public float XOffset { get; set; }
-        public float YOffset { get; set; }
         public float XVelocity { get; set; }
         public float YVelocity { get; set; }
+
+        public float XOffset { get; set; }
+        public float YOffset { get; set; }
 
         public PlayerOrientation Orientation
         {
@@ -24,6 +25,31 @@ namespace ModelLibrary.Abstract
                 if (Direction == new Vector2(1, 0)) return PlayerOrientation.Right;
                 return PlayerOrientation.Base;
             }
+        }
+
+        public Vector2 SetDirectionFromInput(KeyboardState state)
+        {
+            Vector2 direction = new(0, 0);
+            
+            if (state.IsKeyDown(Keys.Up))
+            {
+                direction = new Vector2(direction.X, -1);
+            }
+            else if (state.IsKeyDown(Keys.Down))
+            {
+                direction = new Vector2(direction.X, 1);
+            }
+            else if (state.IsKeyDown(Keys.Left))
+            {
+                direction = new Vector2(-1, direction.Y);
+            }
+            else if (state.IsKeyDown(Keys.Right))
+            {
+                direction = new Vector2(1, direction.Y);
+            }
+
+            this.Direction = direction;
+            return direction;
         }
 
         public bool Mining { get; set; } = false;
@@ -39,21 +65,46 @@ namespace ModelLibrary.Abstract
 
         public float MaximumActiveVelocity => Math.Abs(XVelocity) > Math.Abs(YVelocity) ? Math.Abs(XVelocity) : Math.Abs(YVelocity);
 
+        public void UpdateOffset()
+        {
+            XOffset += XVelocity;
+            YOffset += YVelocity;
+        }
+
+        public void SubstractOffset(int pixels)
+        {
+            switch (Orientation)
+            {
+                case PlayerOrientation.Left:
+                    XOffset += pixels; 
+                    break;
+                case PlayerOrientation.Up:
+                    YOffset += pixels; 
+                    break;
+                case PlayerOrientation.Right:
+                    XOffset -= pixels;
+                    break;
+                case PlayerOrientation.Down:
+                    YOffset -= pixels;
+                    break;
+            }
+        }
+
         // TODO: Instead of 0.0f, decrease by value.
         // TODO: Incorporate gravity.
-        public void UpdateVelocity(Vector2 direction)
+        public void UpdateVelocity()
         {
-            if (direction.X == 0)
+            if (Direction.X == 0)
             {
                 XVelocity = 0.0f;
             }
 
-            if (direction.Y == 0)
+            if (Direction.Y == 0)
             {
                 YVelocity = 0.0f;
             }
 
-            if (direction.Y == 1)
+            if (Direction.Y == 1)
             {
                 if (YVelocity < 0)
                 {
@@ -70,7 +121,7 @@ namespace ModelLibrary.Abstract
                 return;
             }
 
-            if (direction.X == 1)
+            if (Direction.X == 1)
             {
                 if (XVelocity < 0)
                 {
@@ -87,7 +138,7 @@ namespace ModelLibrary.Abstract
                 return;
             }
 
-            if (direction.Y == -1)
+            if (Direction.Y == -1)
             {
                 if (YVelocity > 0)
                 {
@@ -104,7 +155,7 @@ namespace ModelLibrary.Abstract
                 return;
             }
 
-            if (direction.X == -1)
+            if (Direction.X == -1)
             {
                 if (XVelocity > 0)
                 {
@@ -127,6 +178,12 @@ namespace ModelLibrary.Abstract
         {
             XVelocity = 0.0f;
             YVelocity = 0.0f;
+        }
+
+        public void ResetOffset()
+        {
+            XOffset = 0.0f;
+            YOffset = 0.0f;
         }
     }
 }
