@@ -23,15 +23,15 @@ namespace ToTheEndOfTheWorld.Context.StaticRepositories
             var BackgroundBlock = new Block(ID: -1, Ethereal: true, Info: BackgroundBlockInfo);
             Add(-1, ("Background", manager.Load<Texture2D>("Graphics/World/Blocks/Background"), BackgroundBlock));
 
-            var AirBlockInfo = new BlockInfo(MaximumDepth: 11, OccurrenceSpan: new Vector2(0f, 100f));
+            var AirBlockInfo = new BlockInfo(MaximumDepth: 10, OccurrenceSpan: new Vector2(0f, 100f));
             var AirBlock = new Block(ID: 0, Ethereal: true, Info: AirBlockInfo);
             Add(0, ("Air", manager.Load<Texture2D>("Graphics/World/Blocks/Air"), AirBlock));
 
-            var GrassBlockInfo = new BlockInfo(MinimumDepth: 12, MaximumDepth: 12, OccurrenceSpan: new Vector2(0f, 100f));
+            var GrassBlockInfo = new BlockInfo(MinimumDepth: 11, MaximumDepth: 11, OccurrenceSpan: new Vector2(0f, 100f));
             var GrassBlock = new Block(ID: 1, Ethereal: false, Hardness: 0, Health: 50, Worth: 0, Info: GrassBlockInfo);
             Add(1, ("Grass", manager.Load<Texture2D>("Graphics/World/Blocks/Grass"), GrassBlock));
 
-            var DirtBlockInfo = new BlockInfo(MinimumDepth: 13, OccurrenceSpan: new Vector2(0f, 100f));
+            var DirtBlockInfo = new BlockInfo(MinimumDepth: 12, OccurrenceSpan: new Vector2(0f, 100f));
             var DirtBlock = new Block(ID: 2, Ethereal: false, Hardness: 0, Health: 10, Worth: 0, Info: DirtBlockInfo);
             Add(2, ("Dirt", manager.Load<Texture2D>("Graphics/World/Blocks/Dirt"), DirtBlock));
 
@@ -39,7 +39,7 @@ namespace ToTheEndOfTheWorld.Context.StaticRepositories
             var GravelBlock = new Block(ID: 3, Ethereal: false, Hardness: 1, Health: 5, Worth: 1, Info: GravelBlockInfo);
             Add(3, ("Gravel", manager.Load<Texture2D>("Graphics/World/Blocks/Gravel"), GravelBlock));
 
-            var StoneBlockInfo = new BlockInfo(MinimumDepth: 13, OccurrenceSpan: new Vector2(2f, 4f));
+            var StoneBlockInfo = new BlockInfo(MinimumDepth: 12, OccurrenceSpan: new Vector2(2f, 4f));
             var StoneBlock = new Block(ID: 4, Ethereal: false, Hardness: 20, Health: 50, Worth: 0, Info: StoneBlockInfo);
             Add(4, ("Stone", manager.Load<Texture2D>("Graphics/World/Blocks/Stone"), StoneBlock));
 

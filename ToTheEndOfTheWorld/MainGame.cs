@@ -47,8 +47,8 @@ namespace ToTheEndOfTheWorld
             var _blocksWide = (GraphicsDevice.DisplayMode.Width - (GraphicsDevice.DisplayMode.Width % _pixels)) / _pixels;
             var _blocksHigh = (GraphicsDevice.DisplayMode.Height - (GraphicsDevice.DisplayMode.Height % _pixels)) / _pixels;
 
-            _blocksWide -= _blocksWide % 2;
-            _blocksHigh -= _blocksHigh % 2;
+            _blocksWide -= _blocksWide % 2 + 2;
+            _blocksHigh -= _blocksHigh % 2 + 2;
 
             Window.Title = $"{GameTitle} {GameVersion}";
             graphics.PreferredBackBufferWidth = _blocksWide * _pixels;
@@ -125,11 +125,12 @@ namespace ToTheEndOfTheWorld
                 if (oldDirection != newDirection || (newDirection.X == 0 && newDirection.Y == 0))
                 {
                     player.ResetOffset();
-                    player.Mining = false;
                 }
 
                 if (!Obstructed(nextBlock, nextBlockVector))
                 {
+                    player.Mining = false;
+
                     player.UpdateVelocity();
                     player.UpdateOffset();
 
@@ -210,8 +211,7 @@ namespace ToTheEndOfTheWorld
             foreach (var pair in world.WorldRender)
             {
                 var player = world.Player;
-                //var location = new Vector2((pair.Key.X * _pixels) - (player.XOffset), (pair.Key.Y * _pixels) - (player.YOffset));
-                var location = new Vector2(pair.Key.X * _pixels, pair.Key.Y * _pixels);
+                var location = new Vector2(pair.Key.X * _pixels - (0.5f * _pixels), pair.Key.Y * _pixels - (0.5f * _pixels));
 
                 if (world.WorldTrails.ContainsKey(pair.Value))
                 {
@@ -236,8 +236,8 @@ namespace ToTheEndOfTheWorld
         private void DrawPlayerShip()
         {
             Vector2 PlayerPosition = new Vector2(
-                GetCenterScreenCoordinates().X,
-                GetCenterScreenCoordinates().Y
+                GetCenterScreenCoordinates().X - (0.5f * _pixels),
+                GetCenterScreenCoordinates().Y - (0.5f * _pixels)
             );
 
             var player = world.Player;
@@ -254,8 +254,8 @@ namespace ToTheEndOfTheWorld
             {
                 if (mining)
                 {
-                    var drillPositionX = GetCenterScreenCoordinates().X + (player.Direction.X * _pixels);
-                    var drillPositionY = GetCenterScreenCoordinates().Y + (player.Direction.Y * _pixels);
+                    var drillPositionX = GetCenterScreenCoordinates().X - (0.5f * _pixels) + (player.Direction.X * _pixels);
+                    var drillPositionY = GetCenterScreenCoordinates().Y - (0.5f * _pixels) + (player.Direction.Y * _pixels);
 
                     spriteBatch.Draw(drill.Textures[orientation], new Vector2(drillPositionX, drillPositionY), Color.White);
 
