@@ -129,28 +129,30 @@ namespace ToTheEndOfTheWorld
                 player.UpdateVelocity();
                 player.UpdateOffset();
 
-                var moves = player.BlocksToMove(_pixels);
+                var blocksToMove = player.BlocksToMove(_pixels);
 
-                if (moves > 0)
+                if (blocksToMove > 0)
                 {
-                    for (var i = 1; i < moves; i++)
+                    Block checkBlock;
+                    Vector2 checkBlockVector;
+                    float checkLocationX;
+                    float checkLocationY;
+
+                    var i = 1;
+                    while (i < blocksToMove)
                     {
-                        var checkLocationX = location.X + (newDirection.X * i);
-                        var checkLocationY = location.Y + (newDirection.Y * i);
+                        checkLocationX = location.X + (newDirection.X * i);
+                        checkLocationY = location.Y + (newDirection.Y * i);
 
-                        var checkBlockVector = new Vector2(checkLocationX, checkLocationY);
-                        var checkBlock = GetWorldBlock(checkBlockVector.X, checkBlockVector.Y).Value.Block;
+                        checkBlockVector = new Vector2(checkLocationX, checkLocationY);
+                        checkBlock = GetWorldBlock(checkBlockVector.X, checkBlockVector.Y).Value.Block;
 
-                        if (!Obstructed(checkBlock, checkBlockVector))
-                        {
-                            player.SubstractOffset(_pixels);
-                            MoveScreen(newDirection.X, newDirection.Y);
-                        }
-                        else
-                        {
-                            break;
-                        }
+                        if (Obstructed(checkBlock, checkBlockVector)) break;
+
+                        i++;
                     }
+                    player.SubstractOffset(_pixels * i);
+                    MoveScreen(newDirection.X * i, newDirection.Y * i);
                 }
             }
             
