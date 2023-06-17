@@ -12,6 +12,7 @@ using ModelLibrary.Enums;
 using System.Linq;
 using UtilityLibrary;
 using ModelLibrary.Context;
+using System.Threading.Tasks;
 
 namespace ToTheEndOfTheWorld
 {
@@ -37,7 +38,7 @@ namespace ToTheEndOfTheWorld
             IsMouseVisible = true;
         }
 
-        protected override void Initialize()
+        protected override async void Initialize()
         {
             blocks = new WorldElementsRepository(Content);
             items = new GameItemsRepository(Content);
@@ -97,12 +98,12 @@ namespace ToTheEndOfTheWorld
             );
         }
 
-        protected override void LoadContent()
+        protected override async void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
         }
 
-        protected override void Update(GameTime gameTime)
+        protected override async void Update(GameTime gameTime)
         {
             KeyboardState state = Keyboard.GetState();
             if (state.IsKeyDown(Keys.LeftControl) && state.IsKeyDown(Keys.S))
@@ -123,7 +124,7 @@ namespace ToTheEndOfTheWorld
                 player.Mining = false;
             }
 
-            
+
             if (!Obstructed(nextBlock, nextBlockVector))
             {
                 player.UpdateVelocity();
@@ -155,14 +156,14 @@ namespace ToTheEndOfTheWorld
                     MoveScreen(newDirection.X * i, newDirection.Y * i);
                 }
             }
-            
+
             if (Obstructed(nextBlock, nextBlockVector))
             {
                 player.Mining = true;
                 player.ResetVelocity();
                 player.ResetOffset();
                 DealDamageToBlock(nextBlockVector.X, nextBlockVector.Y);
-        
+
                 if (!Obstructed(nextBlock, nextBlockVector))
                 {
                     MoveScreen(newDirection.X, newDirection.Y);
@@ -172,7 +173,7 @@ namespace ToTheEndOfTheWorld
             base.Update(gameTime);
         }
 
-        protected override void Draw(GameTime gameTime)
+        protected override async void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
@@ -213,7 +214,7 @@ namespace ToTheEndOfTheWorld
                 else
                 {
                     var block = GetWorldBlock(pair.Value.X, pair.Value.Y);
-                    
+
                     spriteBatch.Draw(block.Value.Texture, location, Color.White);
 
                     if (interactions.ContainsKey(pair.Value))

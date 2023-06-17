@@ -16,7 +16,7 @@ namespace ToTheEndOfTheWorld.Context.StaticRepositories
         private void InitializeCollection(ContentManager manager)
         {
             var BreakingBlockInfo = new BlockInfo();
-            var BreakingBlock = new Block(ID: -1, Ethereal: true, Info: BreakingBlockInfo);
+            var BreakingBlock = new Block(ID: -2, Ethereal: true, Info: BreakingBlockInfo);
             Add(-2, ("Breaking", manager.Load<Texture2D>("Graphics/World/Blocks/Breaking"), BreakingBlock));
 
             var BackgroundBlockInfo = new BlockInfo();
@@ -39,7 +39,7 @@ namespace ToTheEndOfTheWorld.Context.StaticRepositories
             var GravelBlock = new Block(ID: 3, Ethereal: false, Hardness: 1, Health: 5, Worth: 1, Info: GravelBlockInfo);
             Add(3, ("Gravel", manager.Load<Texture2D>("Graphics/World/Blocks/Gravel"), GravelBlock));
 
-            var StoneBlockInfo = new BlockInfo(MinimumDepth: 12, OccurrenceSpan: new Vector2(2f, 4f));
+            var StoneBlockInfo = new BlockInfo(MinimumDepth: 13, OccurrenceSpan: new Vector2(2f, 4f));
             var StoneBlock = new Block(ID: 4, Ethereal: false, Hardness: 20, Health: 50, Worth: 0, Info: StoneBlockInfo);
             Add(4, ("Stone", manager.Load<Texture2D>("Graphics/World/Blocks/Stone"), StoneBlock));
 
