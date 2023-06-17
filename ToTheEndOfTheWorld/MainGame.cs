@@ -71,7 +71,7 @@ namespace ToTheEndOfTheWorld
                 Engine: new Engine(items[3].type as Engine),
                 Hull: new Hull(items[1].type as Hull),
                 Drill: new Drill(items[2].type as Drill),
-                Inventory: new Inventory(ID: 100, new Grid(ID: 99, new Vector2(0, 0), new GridBox[3, 3]), SizeLimit: 576, Name: "Starter Inventory", Worth: 10, Weight: 0),
+/*TODO items[3]?*/ Inventory: new Inventory(ID: 100, new Grid(ID: 99, new Vector2(0, 0), new GridBox[3, 3]), SizeLimit: 576, Name: "Starter Inventory", Worth: 10, Weight: 0),
                 Thruster: new Thruster(items[5].type as Thruster),
                 FuelTank: new FuelTank(items[4].type as FuelTank)
             )
@@ -109,6 +109,7 @@ namespace ToTheEndOfTheWorld
             var runner = Task.Run(() =>
             {
                 KeyboardState state = Keyboard.GetState();
+
                 if (state.IsKeyDown(Keys.LeftControl) && state.IsKeyDown(Keys.S))
                 {
                     ContextHandler.SaveWorld(world);
@@ -283,6 +284,12 @@ namespace ToTheEndOfTheWorld
         private void DealDamageToBlock(float x, float y)
         {
             var vector = new Vector2(x, y);
+
+            if (world.WorldTrails.ContainsKey(vector))
+            {
+                return;
+            }
+
             var block = GetWorldBlock(x, y).Value.Block;
 
             if (interactions.ContainsKey(vector) == false)

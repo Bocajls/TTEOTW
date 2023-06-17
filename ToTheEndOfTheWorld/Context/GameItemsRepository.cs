@@ -64,7 +64,7 @@ namespace ToTheEndOfTheWorld.Context.StaticRepositories
             {
                 { PlayerOrientation.Base, manager.Load<Texture2D>("Graphics/Player/Thrusters/ScrapThruster/ScrapThruster") }
             };
-            Add(5, ("ScrapThruster", ScrapThrusterTextures, new Thruster(ID: 5, Speed: 8, Acceleration: 0.5f, Power: 50, Plating: new ThermalPlating(ScrapPlating), Name: "Scrap Thruster", ActiveFuelConsumption: 2, Weight: 5, Worth: 5)));
+            Add(5, ("ScrapThruster", ScrapThrusterTextures, new Thruster(ID: 5, Speed: 8, Acceleration: 0.1f, Power: 50, Plating: new ThermalPlating(ScrapPlating), Name: "Scrap Thruster", ActiveFuelConsumption: 2, Weight: 5, Worth: 5)));
         }
     }
 }
