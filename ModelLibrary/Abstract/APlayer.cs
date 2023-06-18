@@ -122,9 +122,9 @@ namespace ModelLibrary.Abstract
 
             if (Direction.Y == 1)
             {
-                if (YVelocity < 0)
+                if (YVelocity <= 0)
                 {
-                    YVelocity = 0.0f;
+                    YVelocity = Thruster.MinimumVelocity;
                 }
 
                 YVelocity += Thruster.Acceleration;
@@ -139,9 +139,9 @@ namespace ModelLibrary.Abstract
 
             if (Direction.X == 1)
             {
-                if (XVelocity < 0)
+                if (XVelocity <= 0)
                 {
-                    XVelocity = 0.0f;
+                    XVelocity = Thruster.MinimumVelocity;
                 }
 
                 XVelocity += Thruster.Acceleration;
@@ -156,9 +156,9 @@ namespace ModelLibrary.Abstract
 
             if (Direction.Y == -1)
             {
-                if (YVelocity > 0)
+                if (YVelocity >= 0)
                 {
-                    YVelocity = 0.0f;
+                    YVelocity = -Thruster.MinimumVelocity;
                 }
 
                 YVelocity -= Thruster.Acceleration;
@@ -173,9 +173,9 @@ namespace ModelLibrary.Abstract
 
             if (Direction.X == -1)
             {
-                if (XVelocity > 0)
+                if (XVelocity >= 0)
                 {
-                    XVelocity = 0.0f;
+                    XVelocity = -Thruster.MinimumVelocity;
                 }
 
                 XVelocity -= Thruster.Acceleration;
